@@ -28,7 +28,7 @@ func NewSineSource(sampleRate int, freq int, dur time.Duration) *SineSource {
 		durStep: time.Second / time.Duration(sampleRate),
 
 		theta:     0,
-		thetaStep: 2 * math.Pi / float64(freq),
+		thetaStep: 2 * math.Pi / float64(freq) / float64(sampleRate),
 	}
 }
 
@@ -64,5 +64,6 @@ func (ss *SineSource) nextSample() (Sample, error) {
 
 	ss.now += ss.durStep
 
+	//	fmt.Printf("NS: t %5.2f ts %5.2f: %5.2f\n", ss.theta, ss.thetaStep, sample)
 	return Sample(sample), nil
 }
