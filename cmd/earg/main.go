@@ -11,9 +11,11 @@ import (
 
 func main() {
 
-	freq := 400
+	//	freq := 400
+	freq := 2
 	dur := time.Second
-	sampleRate := 16000
+	//	sampleRate := 16000
+	sampleRate := 50
 
 	source := earg.NewSineSource(sampleRate, freq, dur)
 	ear := earg.New(source)
