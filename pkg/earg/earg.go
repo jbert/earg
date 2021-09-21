@@ -9,9 +9,17 @@ import (
 // Sample is a single sound sample, normalised to -1/+1
 type Sample float64
 
+func (s Sample) String() string {
+	return fmt.Sprintf("%5.2f", s)
+}
+
 type SampleBuf struct {
 	SampleRate int
 	buf        []Sample
+}
+
+func (sb SampleBuf) String() string {
+	return fmt.Sprintf("%d: %v", sb.SampleRate, sb.buf)
 }
 
 type Source interface {
@@ -59,5 +67,6 @@ func (e *Ear) Run(w io.Writer) error {
 
 func (e *Ear) process(w io.Writer, numSamples int) error {
 	fmt.Fprintf(w, "Got %d samples\n", numSamples)
+	fmt.Fprintf(w, "%+v\n", e.sb)
 	return nil
 }
