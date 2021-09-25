@@ -45,12 +45,12 @@ func New(s Source) *Ear {
 	return e
 }
 
-func (e *Ear) addBuf(buf []float64) bool {
-	e.fullBuf = append(e.fullBuf, buf...)
-	if len(e.fullBuf) > e.wantedFullBufSize {
-		e.fullBuf = e.fullBuf[len(e.fullBuf)-e.wantedFullBufSize:]
+func appendToRingBuf(ring, buf []float64, ringBufSize int) ([]float64, bool) {
+	ring = append(ring, buf...)
+	if len(ring) > ringBufSize {
+		ring = ring[len(ring)-ringBufSize:]
 	}
-	return len(e.fullBuf) == e.wantedFullBufSize
+	return ring, len(ring) == ringBufSize
 }
 
 func (e *Ear) Run(w io.Writer) error {
@@ -68,7 +68,8 @@ func (e *Ear) Run(w io.Writer) error {
 		}
 		fmt.Printf("Read %d samples\n", len(readBuf))
 
-		haveFullBuf := e.addBuf(readBuf)
+		var haveFullBuf bool
+		e.fullBuf, haveFullBuf = appendToRingBuf(e.fullBuf, readBuf, e.wantedFullBufSize)
 
 		if haveFullBuf {
 			fmt.Printf("Process %d samples\n", len(e.fullBuf))
