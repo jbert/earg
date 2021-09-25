@@ -36,7 +36,7 @@ func (ss *SineSource) SampleRate() int {
 	return ss.sampleRate
 }
 
-func (ss *SineSource) Read(samples []Sample) (int, error) {
+func (ss *SineSource) Read(samples []float64) (int, error) {
 	numSamples := 0
 	for i := range samples {
 		s, err := ss.nextSample()
@@ -49,7 +49,7 @@ func (ss *SineSource) Read(samples []Sample) (int, error) {
 	return numSamples, nil
 }
 
-func (ss *SineSource) nextSample() (Sample, error) {
+func (ss *SineSource) nextSample() (float64, error) {
 	if ss.now > ss.maxDur {
 		return 0, io.EOF
 	}
@@ -65,5 +65,5 @@ func (ss *SineSource) nextSample() (Sample, error) {
 	ss.now += ss.durStep
 
 	//	fmt.Printf("NS: t %5.2f ts %5.2f: %5.2f\n", ss.theta, ss.thetaStep, sample)
-	return Sample(sample), nil
+	return sample, nil
 }

@@ -11,15 +11,26 @@ import (
 
 func main() {
 
-	//	freq := 400
-	freq := 2
-	dur := time.Second
-	//	sampleRate := 16000
-	sampleRate := 50
+	dur := 10 * time.Second
+	/*
+		sampleRate := 16
+		freqA := 1
+		freqE := 2
+	*/
 
-	source := earg.NewSineSource(sampleRate, freq, dur)
-	ear := earg.New(source)
-	err := ear.Run(os.Stdout)
+	sampleRate := 16000
+	freqA := 440
+	freqE := 659
+
+	sA := earg.NewSineSource(sampleRate, freqA, dur)
+	sE := earg.NewSineSource(sampleRate, freqE, dur)
+	mE := earg.NewScale(sE, 0.1)
+	mux, err := earg.NewMux(sA, mE)
+	if err != nil {
+		log.Fatalf("Can't create mux: %s", err)
+	}
+	ear := earg.New(mux)
+	err = ear.Run(os.Stdout)
 	if err != nil && err != io.EOF {
 		log.Fatalf("Failed to run: %w", err)
 	}
