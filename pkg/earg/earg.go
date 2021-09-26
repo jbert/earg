@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/cmplx"
 	"time"
+
+	"gonum.org/v1/gonum/dsp/fourier"
 )
 
 type Ear struct {
@@ -14,6 +17,9 @@ type Ear struct {
 	wantedFullBufSize int
 	readBufSize       int
 	fullBuf           []float64
+
+	coeffs    []complex128
+	absCoeffs []float64
 }
 
 func New(s Source) *Ear {
@@ -25,13 +31,17 @@ func New(s Source) *Ear {
 
 	readDur := time.Millisecond * 10
 	highFreq := 2048
+	wantedFullBufSize := highFreq * 2 // nyquist
 	e := &Ear{
 		source: s,
 		rate:   rate,
 
-		wantedFullBufSize: highFreq * 2, // nyquist
+		wantedFullBufSize: wantedFullBufSize,
 		readBufSize:       rate * int(readDur) / int(time.Second),
-		fullBuf:           make([]float64, 0),
+
+		fullBuf:   make([]float64, 0),
+		coeffs:    make([]complex128, wantedFullBufSize/2+1),
+		absCoeffs: make([]float64, wantedFullBufSize/2+1),
 	}
 
 	if e.readBufSize < 1 {
@@ -58,7 +68,7 @@ func (e *Ear) Run(w io.Writer) error {
 
 	seenEOF := false
 	for !seenEOF {
-		n, err := e.source.Read(readBuf)
+		numRead, err := e.source.Read(readBuf)
 		if err != nil {
 			if err == io.EOF {
 				seenEOF = true
@@ -66,14 +76,13 @@ func (e *Ear) Run(w io.Writer) error {
 				return fmt.Errorf("error readin: %w", err)
 			}
 		}
-		fmt.Printf("Read %d samples\n", len(readBuf))
 
 		var haveFullBuf bool
-		e.fullBuf, haveFullBuf = appendToRingBuf(e.fullBuf, readBuf, e.wantedFullBufSize)
+		e.fullBuf, haveFullBuf = appendToRingBuf(e.fullBuf, readBuf[:numRead], e.wantedFullBufSize)
 
 		if haveFullBuf {
-			fmt.Printf("Process %d samples\n", len(e.fullBuf))
-			err = e.process(w, n)
+			//			fmt.Printf("Process %d samples\n", len(e.fullBuf))
+			err = e.process(w)
 			if err != nil {
 				return fmt.Errorf("Can't process: %w", err)
 			}
@@ -82,10 +91,60 @@ func (e *Ear) Run(w io.Writer) error {
 	return nil
 }
 
-func (e *Ear) process(w io.Writer, numSamples int) error {
-	//	fmt.Fprintf(w, "Got %d samples\n", numSamples)
-	//	fmt.Fprintf(w, "%+v\n", e.readBuf[:numSamples])
-	//	f := fourier.NewFFT()
-	//fmt.Fprintf(w, "FFT [%v]\n", f)
+func (e *Ear) process(w io.Writer) error {
+	/*
+		max := -1.0
+		for _, s := range e.fullBuf {
+			//		fmt.Fprintf(w, "s %9.6f - max %9.6f\n", s, max)
+			if s > max {
+				max = s
+			}
+		}
+		fmt.Fprintf(w, "max is %9.6f\n", max)
+	*/
+
+	f := fourier.NewFFT(e.wantedFullBufSize)
+	f.Coefficients(e.coeffs, e.fullBuf)
+	e.setAbsCoeffs()
+	//	printFFT(f, e.coeffs)
+	maxFreqIndices := findMaxFreqIndices(f, e.absCoeffs)
+	maxxes := make([]float64, len(maxFreqIndices))
+	for i, j := range maxFreqIndices {
+		maxxes[i] = 16000.0 / 4096.0 * float64(j)
+	}
+	fmt.Printf("Max freqs: %v\n", maxxes)
 	return nil
+}
+
+func (e *Ear) setAbsCoeffs() {
+	for i := range e.coeffs {
+		e.absCoeffs[i] = cmplx.Abs(e.coeffs[i])
+	}
+}
+
+func findMaxFreqIndices(f *fourier.FFT, c []float64) []int {
+	n := f.Len()/2 + 1
+	width := 5 // Must be odd
+	maxIndexes := make([]int, 0)
+ATTEMPT:
+	for i := 0; i < n-width; i++ {
+		possMax := c[i+width/2+1]
+		for j := 0; j < width; j++ {
+			if c[i+j] > possMax {
+				continue ATTEMPT
+			}
+		}
+		maxIndexes = append(maxIndexes, i+width/2+1)
+	}
+	return maxIndexes
+}
+
+func printFFT(f *fourier.FFT, coeffs []complex128) {
+	n := f.Len()/2 + 1
+	for i := 0; i < n; i++ {
+		//		fftFreq := f.Freq(i)
+		freq := 16000.0 / 4096.0 * float64(i)
+		//		fmt.Printf("%d: %7.4f: %7.4f %7.4f\n", i, freq, cmplx.Abs(coeffs[i]), coeffs[i])
+		fmt.Printf("%d: %7.4f: %7.4f\n", i, freq, cmplx.Abs(coeffs[i]))
+	}
 }
