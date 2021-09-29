@@ -30,7 +30,8 @@ func main() {
 		log.Fatalf("Can't create mux: %s", err)
 	}
 	ear := earg.New(mux)
-	err = ear.Run(os.Stdout)
+	o := earg.NewPrintObserver(os.Stdout)
+	err = ear.Run(o)
 	if err != nil && err != io.EOF {
 		log.Fatalf("Failed to run: %w", err)
 	}

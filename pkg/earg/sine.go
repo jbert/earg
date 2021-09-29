@@ -10,6 +10,8 @@ type SineSource struct {
 	freq       int
 	sampleRate int
 
+	currentOffset int
+
 	maxDur  time.Duration
 	now     time.Duration
 	durStep time.Duration
@@ -22,6 +24,8 @@ func NewSineSource(sampleRate int, freq int, dur time.Duration) *SineSource {
 	return &SineSource{
 		freq:       freq,
 		sampleRate: sampleRate,
+
+		currentOffset: 0,
 
 		now:     0,
 		maxDur:  dur,
@@ -36,6 +40,10 @@ func (ss *SineSource) SampleRate() int {
 	return ss.sampleRate
 }
 
+func (ss *SineSource) CurrentOffset() int {
+	return ss.currentOffset
+}
+
 func (ss *SineSource) Read(samples []float64) (int, error) {
 	numSamples := 0
 	for i := range samples {
@@ -45,6 +53,7 @@ func (ss *SineSource) Read(samples []float64) (int, error) {
 		}
 		samples[i] = s
 		numSamples++
+		ss.currentOffset++
 	}
 	return numSamples, nil
 }

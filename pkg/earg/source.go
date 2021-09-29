@@ -8,6 +8,7 @@ import (
 
 type Source interface {
 	SampleRate() int
+	CurrentOffset() int
 	Read(b []float64) (int, error)
 }
 
@@ -74,6 +75,11 @@ SOURCES:
 	}
 	m.sources = sources
 	return m, nil
+}
+
+func (m *Mux) CurrentOffset() int {
+	// We read equally from all
+	return m.sources[0].CurrentOffset()
 }
 
 func (m *Mux) SampleRate() int {

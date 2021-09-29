@@ -63,7 +63,7 @@ func appendToRingBuf(ring, buf []float64, ringBufSize int) ([]float64, bool) {
 	return ring, len(ring) == ringBufSize
 }
 
-func (e *Ear) Run(w io.Writer) error {
+func (e *Ear) Run(o Observer) error {
 	readBuf := make([]float64, e.readBufSize)
 
 	seenEOF := false
@@ -82,7 +82,7 @@ func (e *Ear) Run(w io.Writer) error {
 
 		if haveFullBuf {
 			//			fmt.Printf("Process %d samples\n", len(e.fullBuf))
-			err = e.process(w)
+			err = e.process(o)
 			if err != nil {
 				return fmt.Errorf("Can't process: %w", err)
 			}
@@ -91,7 +91,7 @@ func (e *Ear) Run(w io.Writer) error {
 	return nil
 }
 
-func (e *Ear) process(w io.Writer) error {
+func (e *Ear) process(o Observer) error {
 	/*
 		max := -1.0
 		for _, s := range e.fullBuf {
@@ -103,16 +103,24 @@ func (e *Ear) process(w io.Writer) error {
 		fmt.Fprintf(w, "max is %9.6f\n", max)
 	*/
 
+	a := Analysis{
+		SampleWidth: e.wantedFullBufSize,
+		SampleStart: e.source.CurrentOffset(),
+	}
+
 	f := fourier.NewFFT(e.wantedFullBufSize)
 	f.Coefficients(e.coeffs, e.fullBuf)
 	e.setAbsCoeffs()
 	//	printFFT(f, e.coeffs)
 	maxFreqIndices := findMaxFreqIndices(f, e.absCoeffs)
-	maxxes := make([]float64, len(maxFreqIndices))
+	a.Frequencies = make([]int, len(maxFreqIndices))
 	for i, j := range maxFreqIndices {
-		maxxes[i] = 16000.0 / 4096.0 * float64(j)
+		a.Frequencies[i] = int(16000.0 / 4096.0 * float64(j))
 	}
-	fmt.Printf("Max freqs: %v\n", maxxes)
+	//	fmt.Printf("Max freqs: %v\n", maxxes)
+
+	o.Hear(a)
+
 	return nil
 }
 
