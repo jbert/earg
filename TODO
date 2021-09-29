@@ -1,3 +1,14 @@
+DONE - freq as float?
+    - yes, needed for sensible handling of cents
+    - which are in turn needed for tests
+        NO - maybe `type Freq float64` ?
+
+- add a ctor which turns "a", 4 (or a4) into 440, etc
+
+- add method to find max cents difference between a given freq
+    - cents are log differences, so ratios
+        1 cent = 1200th root of 2
+
 - turn current main into a test
     - add some tests
     - mix a couple of sines together
@@ -19,8 +30,6 @@
 - maybe "the real notes"
     - might be timbre specific
     - voice?
-
-- freq as float?
 
 - generate or record some test samples
 

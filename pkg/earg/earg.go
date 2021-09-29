@@ -113,9 +113,9 @@ func (e *Ear) process(o Observer) error {
 	e.setAbsCoeffs()
 	//	printFFT(f, e.coeffs)
 	maxFreqIndices := findMaxFreqIndices(f, e.absCoeffs)
-	a.Frequencies = make([]int, len(maxFreqIndices))
+	a.Frequencies = make([]float64, len(maxFreqIndices))
 	for i, j := range maxFreqIndices {
-		a.Frequencies[i] = int(16000.0 / 4096.0 * float64(j))
+		a.Frequencies[i] = 16000.0 / 4096.0 * float64(j)
 	}
 	//	fmt.Printf("Max freqs: %v\n", maxxes)
 

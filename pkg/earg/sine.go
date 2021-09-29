@@ -7,7 +7,7 @@ import (
 )
 
 type SineSource struct {
-	freq       int
+	freq       float64
 	sampleRate int
 
 	currentOffset int
@@ -20,7 +20,7 @@ type SineSource struct {
 	thetaStep float64
 }
 
-func NewSineSource(sampleRate int, freq int, dur time.Duration) *SineSource {
+func NewSineSource(sampleRate int, freq float64, dur time.Duration) *SineSource {
 	return &SineSource{
 		freq:       freq,
 		sampleRate: sampleRate,
@@ -32,7 +32,7 @@ func NewSineSource(sampleRate int, freq int, dur time.Duration) *SineSource {
 		durStep: time.Second / time.Duration(sampleRate),
 
 		theta:     0,
-		thetaStep: 2 * math.Pi * float64(freq) / float64(sampleRate),
+		thetaStep: 2 * math.Pi * freq / float64(sampleRate),
 	}
 }
 

@@ -19,8 +19,8 @@ func main() {
 	*/
 
 	sampleRate := 16000
-	freqA := 440
-	freqE := 659
+	freqA := 440.0
+	freqE := 659.0
 
 	sA := earg.NewSineSource(sampleRate, freqA, dur)
 	sE := earg.NewSineSource(sampleRate, freqE, dur)

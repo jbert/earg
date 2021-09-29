@@ -1,6 +1,11 @@
 package earg
 
-import "testing"
+import (
+	"io"
+	"log"
+	"testing"
+	"time"
+)
 
 func TestRingBuf(t *testing.T) {
 	ringBufSize := 5
@@ -32,6 +37,49 @@ func TestRingBuf(t *testing.T) {
 		}
 		if ring[len(ring)-1] != float64(i) {
 			t.Fatalf("Last value is incorrect [%5.2f != %5.2f]", ring[len(ring)-1], float64(i))
+		}
+	}
+}
+
+func TestHearSines(t *testing.T) {
+
+	dur := 1 * time.Second
+
+	sampleRate := 16000
+	a4 := 440.0
+	e4 := 659.0
+
+	sA := NewSineSource(sampleRate, a4, dur)
+	sE := NewSineSource(sampleRate, e4, dur)
+	mE := NewScale(sE, 0.1)
+	mux, err := NewMux(sA, mE)
+	if err != nil {
+		log.Fatalf("Can't create mux: %s", err)
+	}
+	ear := New(mux)
+
+	// Collect analyses here
+	analyses := make([]Analysis, 0)
+	o := NewFuncObserver(func(a Analysis) {
+		analyses = append(analyses, a)
+	})
+
+	err = ear.Run(o)
+	if err != nil && err != io.EOF {
+		t.Fatalf("Failed to run: %s", err)
+	}
+
+	t.Logf("Collected %d analyses", len(analyses))
+
+	for _, a := range analyses {
+		// Do we find our tones?
+		minDiff := MinCentsDiff(a4, a.Frequencies)
+		if minDiff > 0 {
+			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", a4, a, minDiff)
+		}
+		minDiff = MinCentsDiff(e4, a.Frequencies)
+		if minDiff > 0 {
+			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", e4, a, minDiff)
 		}
 	}
 }
