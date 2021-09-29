@@ -1,36 +1,26 @@
-- run FFT in ear
-    - freq range E2 (82Hz - C7 2093Hz)
-        - 64-2048 in powers of 2
-        - so want samples >= 4kHz
-            - at 16Khz, that's 0.25s
-            - at 44Khz, this 0.09s
-            - require sample rate to be a multiple of this
-            4K
-    - output top N frequencies
-    - maybe "the real note"
-        - might be timbre specific
-        - voice?
-
-- have a rolling step on the FFT
-    - don't read a full FFT worth in one go
-    - read in steps
-    - when we have a full window, run FFT
-    - discard oldest step, add a new
-    - loop
-
-- freq as float?
-
-- source wrappers
-    - mute (by constant)
-    - envelope (mute by function)
-
-- should Mux on its own do the divide, or should the caller Wrap with a Scale?
-    - is there value in the Mux-without-scale or not?
-
-- add some tests
+- turn current main into a test
+    - add some tests
     - mix a couple of sines together
     - can we find fundamental?
     - even if quieter?
+
+- add new main which reads from WAV or alsa
+
+- show nearest semitone and delta
+    - requires tuning information (source may be tuned up/down N cents)
+
+- construct the FFT (and arrays) in a holding structure (not the main ear) for performance reasons
+
+- SDL display of semitone lines and current detections
+
+- add absolute or relative 'loudness' to each frequency in analysis
+    - make the sine test also test relative loudness of the muxxed sines
+
+- maybe "the real notes"
+    - might be timbre specific
+    - voice?
+
+- freq as float?
 
 - generate or record some test samples
 
@@ -40,9 +30,34 @@
         - golang impls of midi to use?
 
 - add freq-semitone converter
-
-- show nearest semitone and delta
-
-- SDL display of semitone lines and current detections
+    - requires key
 
 - make a key-aware note converter based on semitone converter 
+
+Wed 29 Sep 08:05:06 BST 2021
+----------------------------
+
+DONE - run FFT in ear
+    - freq range E2 (82Hz - C7 2093Hz)
+        - 64-2048 in powers of 2
+        - so want samples >= 4kHz
+            - at 16Khz, that's 0.25s
+            - at 44Khz, this 0.09s
+            - require sample rate to be a multiple of this
+            4K
+    - output top N frequencies
+
+DONE - have a rolling step on the FFT
+    - don't read a full FFT worth in one go
+    - read in steps
+    - when we have a full window, run FFT
+    - discard oldest step, add a new
+    - loop
+
+DONE - should Mux on its own do the divide, or should the caller Wrap with a Scale?
+    - is there value in the Mux-without-scale or not?
+
+- source wrappers
+    DONE - mute (by constant)
+    NO - envelope (mute by function)
+
