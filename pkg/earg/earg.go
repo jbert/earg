@@ -22,7 +22,7 @@ type Ear struct {
 	absCoeffs []float64
 }
 
-func New(s Source) *Ear {
+func New(s Source, highFreq int) *Ear {
 	rate := s.SampleRate()
 
 	// TODO: make a parameter?
@@ -30,7 +30,6 @@ func New(s Source) *Ear {
 	// covers operatic voice ranges
 
 	readDur := time.Millisecond * 10
-	highFreq := 2048
 	wantedFullBufSize := highFreq * 2 // nyquist
 	e := &Ear{
 		source: s,
@@ -115,7 +114,7 @@ func (e *Ear) process(o Observer) error {
 	maxFreqIndices := findMaxFreqIndices(f, e.absCoeffs)
 	a.Frequencies = make([]float64, len(maxFreqIndices))
 	for i, j := range maxFreqIndices {
-		a.Frequencies[i] = 16000.0 / 4096.0 * float64(j)
+		a.Frequencies[i] = float64(e.rate) / float64(e.wantedFullBufSize) * float64(j)
 	}
 	//	fmt.Printf("Max freqs: %v\n", maxxes)
 

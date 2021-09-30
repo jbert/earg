@@ -56,7 +56,8 @@ func TestHearSines(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Can't create mux: %s", err)
 	}
-	ear := New(mux)
+	highFreq := 8192
+	ear := New(mux, highFreq)
 
 	// Collect analyses here
 	analyses := make([]Analysis, 0)

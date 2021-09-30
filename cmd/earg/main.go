@@ -29,7 +29,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Can't create mux: %s", err)
 	}
-	ear := earg.New(mux)
+	highFreq := 2048
+	ear := earg.New(mux, highFreq)
 	o := earg.NewPrintObserver(os.Stdout)
 	err = ear.Run(o)
 	if err != nil && err != io.EOF {

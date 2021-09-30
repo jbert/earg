@@ -15,7 +15,6 @@ func TestCentsDiff(t *testing.T) {
 		{a5, a4, -1200},
 		{a4, e4, 700},
 		{e4, a4, -700},
-		{a4, 441.4, 0},
 	}
 
 	for _, tc := range testCases {
