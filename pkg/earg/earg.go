@@ -131,17 +131,26 @@ func (e *Ear) setAbsCoeffs() {
 
 func findMaxFreqIndices(f *fourier.FFT, c []float64) []int {
 	n := f.Len()/2 + 1
-	width := 5 // Must be odd
+	width := 5 // Must be odd. High numbers will limit detectable low frequencies
 	maxIndexes := make([]int, 0)
+
+	// Experimentally determined, meaning unclear
+	// (also unclear how it scales with overall volume and number of samples)
+	threshold := 0.5
+	//	fmt.Printf("threshold is %9.7f\n", threshold)
 ATTEMPT:
 	for i := 0; i < n-width; i++ {
 		possMax := c[i+width/2+1]
+		if possMax < threshold {
+			continue ATTEMPT
+		}
 		for j := 0; j < width; j++ {
 			if c[i+j] > possMax {
 				continue ATTEMPT
 			}
 		}
 		maxIndexes = append(maxIndexes, i+width/2+1)
+		//		fmt.Printf("max is %9.7f\n", possMax)
 	}
 	return maxIndexes
 }
