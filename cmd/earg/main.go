@@ -4,33 +4,18 @@ import (
 	"io"
 	"log"
 	"os"
-	"time"
 
 	"github.com/jbert/earg/pkg/earg"
 )
 
 func main() {
 
-	dur := 10 * time.Second
-	/*
-		sampleRate := 16
-		freqA := 1
-		freqE := 2
-	*/
-
-	sampleRate := 16000
-	freqA := 440.0
-	freqE := 659.0
-
-	sA := earg.NewSineSource(sampleRate, freqA, dur)
-	sE := earg.NewSineSource(sampleRate, freqE, dur)
-	mE := earg.NewScale(sE, 0.1)
-	mux, err := earg.NewMux(sA, mE)
+	s, err := earg.NewArecordSource()
 	if err != nil {
-		log.Fatalf("Can't create mux: %s", err)
+		log.Fatalf("Can't start arecord source: %s", err)
 	}
 	highFreq := 2048
-	ear := earg.New(mux, highFreq)
+	ear := earg.New(s, highFreq)
 	o := earg.NewPrintObserver(os.Stdout)
 	err = ear.Run(o)
 	if err != nil && err != io.EOF {
