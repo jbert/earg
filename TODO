@@ -5,17 +5,18 @@ DONE - freq as float?
 
 - add a ctor which turns "a", 4 (or a4) into 440, etc
 
-- add method to find max cents difference between a given freq
+DONE - add method to find max cents difference between a given freq
     - cents are log differences, so ratios
         1 cent = 1200th root of 2
 
-- turn current main into a test
+DONE - turn current main into a test
     - add some tests
     - mix a couple of sines together
     - can we find fundamental?
     - even if quieter?
 
-- add new main which reads from WAV or alsa
+DONE - add new main which reads from WAV or alsa
+    - dump raw audio to see if it is correct
 
 - show nearest semitone and delta
     - requires tuning information (source may be tuned up/down N cents)

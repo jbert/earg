@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/jbert/earg/pkg/earg"
+	"github.com/jbert/earg/pkg/earg/observer"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 	}
 	highFreq := 2048
 	ear := earg.New(s, highFreq)
-	o := earg.NewPrintObserver(os.Stdout)
+	o := observer.NewPrint(os.Stdout)
 	err = ear.Run(o)
 	if err != nil && err != io.EOF {
 		log.Fatalf("Failed to run: %w", err)

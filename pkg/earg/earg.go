@@ -7,6 +7,7 @@ import (
 	"math/cmplx"
 	"time"
 
+	"github.com/jbert/earg/pkg/earg/observer"
 	"gonum.org/v1/gonum/dsp/fourier"
 )
 
@@ -102,7 +103,7 @@ func (e *Ear) process(o Observer) error {
 		fmt.Fprintf(w, "max is %9.6f\n", max)
 	*/
 
-	a := Analysis{
+	a := observer.Analysis{
 		SampleWidth: e.wantedFullBufSize,
 		SampleStart: e.source.CurrentOffset(),
 	}

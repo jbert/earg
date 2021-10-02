@@ -5,6 +5,8 @@ import (
 	"log"
 	"testing"
 	"time"
+
+	"github.com/jbert/earg/pkg/earg/observer"
 )
 
 func TestRingBuf(t *testing.T) {
@@ -60,8 +62,8 @@ func TestHearSines(t *testing.T) {
 	ear := New(mux, highFreq)
 
 	// Collect analyses here
-	analyses := make([]Analysis, 0)
-	o := NewFuncObserver(func(a Analysis) {
+	analyses := make([]observer.Analysis, 0)
+	o := observer.NewFunc(func(a observer.Analysis) {
 		analyses = append(analyses, a)
 	})
 
@@ -78,11 +80,11 @@ func TestHearSines(t *testing.T) {
 	allowedDiff := 2
 	for _, a := range analyses {
 		// Do we find our tones?
-		minDiff := MinCentsDiff(a4, a.Frequencies)
+		minDiff := observer.MinCentsDiff(a4, a.Frequencies)
 		if minDiff > allowedDiff {
 			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", a4, a, minDiff)
 		}
-		minDiff = MinCentsDiff(e4, a.Frequencies)
+		minDiff = observer.MinCentsDiff(e4, a.Frequencies)
 		if minDiff > allowedDiff {
 			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", e4, a, minDiff)
 		}

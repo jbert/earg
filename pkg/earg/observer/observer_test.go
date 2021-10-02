@@ -1,4 +1,4 @@
-package earg
+package observer
 
 import "testing"
 
