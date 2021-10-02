@@ -43,7 +43,7 @@ func TestRingBuf(t *testing.T) {
 
 func TestHearSines(t *testing.T) {
 
-	dur := 1 * time.Second
+	dur := 10 * time.Second
 
 	sampleRate := 16000
 	a4 := 440.0
@@ -56,7 +56,7 @@ func TestHearSines(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Can't create mux: %s", err)
 	}
-	highFreq := 8192
+	highFreq := 4096
 	ear := New(mux, highFreq)
 
 	// Collect analyses here
@@ -71,15 +71,19 @@ func TestHearSines(t *testing.T) {
 	}
 
 	t.Logf("Collected %d analyses", len(analyses))
+	if len(analyses) < 100 {
+		t.Fatalf("Not enough analyses: %d", len(analyses))
+	}
 
+	allowedDiff := 2
 	for _, a := range analyses {
 		// Do we find our tones?
 		minDiff := MinCentsDiff(a4, a.Frequencies)
-		if minDiff > 0 {
+		if minDiff > allowedDiff {
 			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", a4, a, minDiff)
 		}
 		minDiff = MinCentsDiff(e4, a.Frequencies)
-		if minDiff > 0 {
+		if minDiff > allowedDiff {
 			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", e4, a, minDiff)
 		}
 	}
