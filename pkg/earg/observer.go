@@ -53,7 +53,9 @@ func NewPrintObserver(w io.Writer) *PrintObserver {
 }
 
 func (po PrintObserver) Hear(a Analysis) {
-	fmt.Fprintf(po.w, "%s\n", a)
+	if len(a.Frequencies) > 0 {
+		fmt.Fprintf(po.w, "%s\n", a)
+	}
 }
 
 func NewFuncObserver(f func(a Analysis)) FuncObserver {
