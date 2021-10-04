@@ -18,6 +18,13 @@ DONE - turn current main into a test
 DONE - add new main which reads from WAV or alsa
     - dump raw audio to see if it is correct
 
+- pass (normalised 0->1.0 - how do we normalise!?) power to observer
+    - use in SDL observer to draw different colours representing intensity
+        - use cool blue->red->orange colours for intensity, not just greyscale
+
+- scale rectangles on screen by knowledge of frequency buckets and timestep duration
+    - add axes!
+
 - show nearest semitone and delta
     - requires tuning information (source may be tuned up/down N cents)
 
