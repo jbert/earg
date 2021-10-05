@@ -80,11 +80,11 @@ func TestHearSines(t *testing.T) {
 	allowedDiff := 2
 	for _, a := range analyses {
 		// Do we find our tones?
-		minDiff := observer.MinCentsDiff(a4, a.Frequencies)
+		minDiff := observer.MinCentsDiff(a4, a.Peaks)
 		if minDiff > allowedDiff {
 			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", a4, a, minDiff)
 		}
-		minDiff = observer.MinCentsDiff(e4, a.Frequencies)
+		minDiff = observer.MinCentsDiff(e4, a.Peaks)
 		if minDiff > allowedDiff {
 			t.Fatalf("Failed to find [%5.2f] in %s - got %d cents", e4, a, minDiff)
 		}

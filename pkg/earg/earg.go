@@ -112,10 +112,10 @@ func (e *Ear) process(o Observer) error {
 	f.Coefficients(e.coeffs, e.fullBuf)
 	e.setAbsCoeffs()
 	//	printFFT(f, e.coeffs)
-	maxFreqIndices := findMaxFreqIndices(f, e.absCoeffs)
-	a.Frequencies = make([]float64, len(maxFreqIndices))
-	for i, j := range maxFreqIndices {
-		a.Frequencies[i] = float64(e.rate) / float64(e.wantedFullBufSize) * float64(j)
+	peakIndices := findPeaks(f, e.absCoeffs)
+	a.Peaks = make([]float64, len(peakIndices))
+	for i, j := range peakIndices {
+		a.Peaks[i] = e.indexToFreq(j)
 	}
 	//	fmt.Printf("Max freqs: %v\n", maxxes)
 
@@ -124,16 +124,20 @@ func (e *Ear) process(o Observer) error {
 	return nil
 }
 
+func (e *Ear) indexToFreq(j int) float64 {
+	return float64(e.rate) / float64(e.wantedFullBufSize) * float64(j)
+}
+
 func (e *Ear) setAbsCoeffs() {
 	for i := range e.coeffs {
 		e.absCoeffs[i] = cmplx.Abs(e.coeffs[i])
 	}
 }
 
-func findMaxFreqIndices(f *fourier.FFT, c []float64) []int {
+func findPeaks(f *fourier.FFT, c []float64) []int {
 	n := f.Len()/2 + 1
 	width := 5 // Must be odd. High numbers will limit detectable low frequencies
-	maxIndexes := make([]int, 0)
+	peakIndexes := make([]int, 0)
 
 	// Experimentally determined, meaning unclear
 	// (also unclear how it scales with overall volume and number of samples)
@@ -141,19 +145,19 @@ func findMaxFreqIndices(f *fourier.FFT, c []float64) []int {
 	//	fmt.Printf("threshold is %9.7f\n", threshold)
 ATTEMPT:
 	for i := 0; i < n-width; i++ {
-		possMax := c[i+width/2+1]
-		if possMax < threshold {
+		possPeak := c[i+width/2+1]
+		if possPeak < threshold {
 			continue ATTEMPT
 		}
 		for j := 0; j < width; j++ {
-			if c[i+j] > possMax {
+			if c[i+j] > possPeak {
 				continue ATTEMPT
 			}
 		}
-		maxIndexes = append(maxIndexes, i+width/2+1)
+		peakIndexes = append(peakIndexes, i+width/2+1)
 		//		fmt.Printf("max is %9.7f\n", possMax)
 	}
-	return maxIndexes
+	return peakIndexes
 }
 
 func printFFT(f *fourier.FFT, coeffs []complex128) {

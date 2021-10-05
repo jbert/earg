@@ -7,14 +7,20 @@ import (
 	"math"
 )
 
+type FreqPower struct {
+	Freq  float64
+	Power float64
+}
+
 type Analysis struct {
-	Frequencies []float64
+	Peaks       []float64
+	FreqPower   []FreqPower
 	SampleStart int
 	SampleWidth int
 }
 
 func (a Analysis) String() string {
-	return fmt.Sprintf("%d (%d): %v", a.SampleStart, a.SampleWidth, a.Frequencies)
+	return fmt.Sprintf("%d (%d): %v", a.SampleStart, a.SampleWidth, a.Peaks)
 }
 
 func abs(x int) int {
@@ -50,7 +56,7 @@ func NewPrint(w io.Writer) *Print {
 }
 
 func (po Print) Hear(a Analysis) {
-	if len(a.Frequencies) > 0 {
+	if len(a.Peaks) > 0 {
 		fmt.Fprintf(po.w, "%s\n", a)
 	}
 }

@@ -54,7 +54,7 @@ func (s *SDL) Hear(a Analysis) {
 	s.renderer.FillRect(&rect)
 
 	s.renderer.SetDrawColor(128, 128, 128, 255)
-	for _, f := range a.Frequencies {
+	for _, f := range a.Peaks {
 		y := s.height - int32(float64(s.height)*f/float64(s.highFreq))
 		rect = sdl.Rect{s.currentX, y, 5, 5}
 		s.renderer.FillRect(&rect)
