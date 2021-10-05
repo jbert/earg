@@ -19,8 +19,8 @@ type Ear struct {
 	readBufSize       int
 	fullBuf           []float64
 
-	coeffs    []complex128
-	absCoeffs []float64
+	coeffs     []complex128
+	normCoeffs []float64
 }
 
 func New(s Source, highFreq int) *Ear {
@@ -39,9 +39,9 @@ func New(s Source, highFreq int) *Ear {
 		wantedFullBufSize: wantedFullBufSize,
 		readBufSize:       rate * int(readDur) / int(time.Second),
 
-		fullBuf:   make([]float64, 0),
-		coeffs:    make([]complex128, wantedFullBufSize/2+1),
-		absCoeffs: make([]float64, wantedFullBufSize/2+1),
+		fullBuf:    make([]float64, 0),
+		coeffs:     make([]complex128, wantedFullBufSize/2+1),
+		normCoeffs: make([]float64, wantedFullBufSize/2+1),
 	}
 
 	if e.readBufSize < 1 {
@@ -110,9 +110,18 @@ func (e *Ear) process(o Observer) error {
 
 	f := fourier.NewFFT(e.wantedFullBufSize)
 	f.Coefficients(e.coeffs, e.fullBuf)
-	e.setAbsCoeffs()
+	e.setNormalisedCoeffs()
+
+	a.FreqPower = make([]observer.FreqPower, len(e.normCoeffs))
+	for i, p := range e.normCoeffs {
+		a.FreqPower[i] = observer.FreqPower{
+			Freq:  e.indexToFreq(i),
+			Power: p,
+		}
+	}
+
 	//	printFFT(f, e.coeffs)
-	peakIndices := findPeaks(f, e.absCoeffs)
+	peakIndices := findPeaks(f, e.normCoeffs)
 	a.Peaks = make([]float64, len(peakIndices))
 	for i, j := range peakIndices {
 		a.Peaks[i] = e.indexToFreq(j)
@@ -128,9 +137,9 @@ func (e *Ear) indexToFreq(j int) float64 {
 	return float64(e.rate) / float64(e.wantedFullBufSize) * float64(j)
 }
 
-func (e *Ear) setAbsCoeffs() {
+func (e *Ear) setNormalisedCoeffs() {
 	for i := range e.coeffs {
-		e.absCoeffs[i] = cmplx.Abs(e.coeffs[i])
+		e.normCoeffs[i] = cmplx.Abs(e.coeffs[i]) / float64(e.wantedFullBufSize)
 	}
 }
 
