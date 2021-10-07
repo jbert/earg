@@ -5,5 +5,5 @@ import (
 )
 
 type Observer interface {
-	Hear(a observer.Analysis)
+	Hear(a observer.Analysis) error
 }

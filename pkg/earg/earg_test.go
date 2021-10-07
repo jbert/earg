@@ -63,8 +63,9 @@ func TestHearSines(t *testing.T) {
 
 	// Collect analyses here
 	analyses := make([]observer.Analysis, 0)
-	o := observer.NewFunc(func(a observer.Analysis) {
+	o := observer.NewFunc(func(a observer.Analysis) error {
 		analyses = append(analyses, a)
+		return nil
 	})
 
 	err = ear.Run(o)

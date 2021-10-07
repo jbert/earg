@@ -49,22 +49,23 @@ type Print struct {
 	w io.Writer
 }
 
-type Func func(a Analysis)
+type Func func(a Analysis) error
 
 func NewPrint(w io.Writer) *Print {
 	return &Print{w}
 }
 
-func (po Print) Hear(a Analysis) {
+func (po Print) Hear(a Analysis) error {
 	if len(a.Peaks) > 0 {
 		fmt.Fprintf(po.w, "%s\n", a)
 	}
+	return nil
 }
 
-func NewFunc(f func(a Analysis)) Func {
+func NewFunc(f func(a Analysis) error) Func {
 	return f
 }
 
-func (fo Func) Hear(a Analysis) {
-	fo(a)
+func (fo Func) Hear(a Analysis) error {
+	return fo(a)
 }

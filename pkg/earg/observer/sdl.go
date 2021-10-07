@@ -85,7 +85,7 @@ func powerToColour(p float64) (uint8, uint8, uint8) {
 	return r, g, b
 }
 
-func (s *SDL) Hear(a Analysis) {
+func (s *SDL) Hear(a Analysis) error {
 
 	/*
 		s.renderer.SetDrawColor(0, 0, 0, 255)
@@ -121,4 +121,6 @@ func (s *SDL) Hear(a Analysis) {
 		s.currentX = 0
 	}
 	s.renderer.Present()
+
+	return nil
 }
