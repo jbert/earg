@@ -2,6 +2,7 @@ package observer
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -19,6 +20,24 @@ type SDL struct {
 	height int32
 
 	currentX int32
+
+	stoppedCh chan struct{}
+}
+
+func (s *SDL) stopped() bool {
+	stopped := false
+	select {
+	case _, ok := <-s.stoppedCh:
+		if !ok {
+			stopped = true
+		}
+	default:
+	}
+	return stopped
+}
+
+func (s *SDL) stop() {
+	close(s.stoppedCh)
 }
 
 func NewSDL(highFreq int, sampleRate int, widthDur time.Duration, width int, height int) (*SDL, error) {
@@ -29,7 +48,11 @@ func NewSDL(highFreq int, sampleRate int, widthDur time.Duration, width int, hei
 		widthDur:   widthDur,
 		width:      int32(width),
 		height:     int32(height),
+
+		stoppedCh: make(chan struct{}),
 	}
+
+	//	sdl.Init(sdl.INIT_EVERYTHING)
 
 	winTitle := "Ear"
 	s.window, err = sdl.CreateWindow(winTitle, sdl.WINDOWPOS_UNDEFINED,
@@ -44,7 +67,32 @@ func NewSDL(highFreq int, sampleRate int, widthDur time.Duration, width int, hei
 	}
 	s.renderer.Clear()
 
+	go s.listenForEvents()
+
 	return s, nil
+}
+
+func (s *SDL) listenForEvents() {
+	// Drain any keyboard events
+	for !s.stopped() {
+		event := sdl.WaitEvent()
+		//		log.Printf("Got event: %v", event)
+		switch ev := event.(type) {
+		case *sdl.QuitEvent:
+			//			log.Printf("Got quit event: %v", event)
+			s.stop()
+		case *sdl.KeyboardEvent:
+			//			log.Printf("Got keyboard event: %v", event)
+			switch ev.Keysym.Sym {
+			case sdl.K_q:
+				//				log.Printf("Got q keyboard event: %v", event)
+				s.stop()
+			case sdl.K_ESCAPE:
+				//				log.Printf("Got escape keyboard event: %v", event)
+				s.stop()
+			}
+		}
+	}
 }
 
 // var minFloat float64 = 1000000000000000.0
@@ -87,6 +135,9 @@ func powerToColour(p float64) (uint8, uint8, uint8) {
 
 func (s *SDL) Hear(a Analysis) error {
 
+	if s.stopped() {
+		return io.EOF
+	}
 	/*
 		s.renderer.SetDrawColor(0, 0, 0, 255)
 		rect := sdl.Rect{s.currentX, 0, 5, s.height}

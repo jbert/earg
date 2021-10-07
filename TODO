@@ -1,32 +1,8 @@
-DONE - freq as float?
-    - yes, needed for sensible handling of cents
-    - which are in turn needed for tests
-        NO - maybe `type Freq float64` ?
-
-DONE - add gain to cmdline
-
 - add a ctor which turns "a", 4 (or a4) into 440, etc
 
-- q or esc to quit
-    - p to pause
-    - screenshot button?
+- p to pause?
 
-DONE - add method to find max cents difference between a given freq
-    - cents are log differences, so ratios
-        1 cent = 1200th root of 2
-
-DONE - turn current main into a test
-    - add some tests
-    - mix a couple of sines together
-    - can we find fundamental?
-    - even if quieter?
-
-DONE - add new main which reads from WAV or alsa
-    - dump raw audio to see if it is correct
-
-- pass (normalised 0->1.0 - how do we normalise!?) power to observer
-    - use in SDL observer to draw different colours representing intensity
-        - use cool blue->red->orange colours for intensity, not just greyscale
+- screenshot button?
 
 - scale rectangles on screen by knowledge of frequency buckets and timestep duration
     - add axes!
@@ -86,4 +62,33 @@ DONE - should Mux on its own do the divide, or should the caller Wrap with a Sca
 - source wrappers
     DONE - mute (by constant)
     NO - envelope (mute by function)
+
+Thu  7 Oct 08:43:42 BST 2021
+----------------------------
+
+DONE - freq as float?
+    - yes, needed for sensible handling of cents
+    - which are in turn needed for tests
+        NO - maybe `type Freq float64` ?
+
+DONE - add gain to cmdline
+
+DONE - q or esc to quit
+
+DONE - add method to find max cents difference between a given freq
+    - cents are log differences, so ratios
+        1 cent = 1200th root of 2
+
+DONE - turn current main into a test
+    - add some tests
+    - mix a couple of sines together
+    - can we find fundamental?
+    - even if quieter?
+
+DONE - add new main which reads from WAV or alsa
+    - dump raw audio to see if it is correct
+
+DONE - pass (normalised 0->1.0 - how do we normalise!?) power to observer
+    - use in SDL observer to draw different colours representing intensity
+        - use cool blue->red->orange colours for intensity, not just greyscale
 
