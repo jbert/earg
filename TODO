@@ -3,7 +3,13 @@ DONE - freq as float?
     - which are in turn needed for tests
         NO - maybe `type Freq float64` ?
 
+DONE - add gain to cmdline
+
 - add a ctor which turns "a", 4 (or a4) into 440, etc
+
+- q or esc to quit
+    - p to pause
+    - screenshot button?
 
 DONE - add method to find max cents difference between a given freq
     - cents are log differences, so ratios
@@ -24,11 +30,14 @@ DONE - add new main which reads from WAV or alsa
 
 - scale rectangles on screen by knowledge of frequency buckets and timestep duration
     - add axes!
+        - add option for log scale of frequency, to get semitones equally spaced?
 
 - show nearest semitone and delta
     - requires tuning information (source may be tuned up/down N cents)
 
-- construct the FFT (and arrays) in a holding structure (not the main ear) for performance reasons
+- construct the FFT (and arrays) in a holding structure (not the main ear)
+    reused from process-to-process for performance reasons
+    can be passed into process, just be lexicals in Run?
 
 - SDL display of semitone lines and current detections
 

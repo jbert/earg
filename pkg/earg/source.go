@@ -33,7 +33,7 @@ func NewClip(s Source, clip float64) *Clip {
 
 func (c *Clip) Read(b []float64) (int, error) {
 	n, err := c.Source.Read(b)
-	// Do this on error too, might be EOF and doesn't hurt
+	// We do this on error too, might be EOF and doesn't hurt
 	for i := range b {
 		if b[i] > c.clip {
 			b[i] = c.clip
