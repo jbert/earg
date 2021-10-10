@@ -84,9 +84,6 @@ func (e *Ear) Run(o Observer) error {
 			//			fmt.Printf("Process %d samples\n", len(e.fullBuf))
 			err = e.process(o)
 			if err != nil {
-				if err == io.EOF {
-					return err
-				}
 				return fmt.Errorf("Can't process: %w", err)
 			}
 		}
@@ -124,17 +121,17 @@ func (e *Ear) process(o Observer) error {
 	}
 
 	//	printFFT(f, e.coeffs)
-	peakIndices := findPeaks(f, e.normCoeffs)
+	// Experimentally determined, meaning unclear
+	// (also unclear how it scales with overall volume and number of samples)
+	threshold := 2 / float64(e.wantedFullBufSize)
+	peakIndices := findPeaks(f, e.normCoeffs, threshold)
 	a.Peaks = make([]float64, len(peakIndices))
 	for i, j := range peakIndices {
 		a.Peaks[i] = e.indexToFreq(j)
 	}
 	//	fmt.Printf("Max freqs: %v\n", maxxes)
 
-	err := o.Hear(a)
-	if err != nil {
-		return err
-	}
+	o.Hear(a)
 
 	return nil
 }
@@ -149,14 +146,11 @@ func (e *Ear) setNormalisedCoeffs() {
 	}
 }
 
-func findPeaks(f *fourier.FFT, c []float64) []int {
+func findPeaks(f *fourier.FFT, c []float64, threshold float64) []int {
 	n := f.Len()/2 + 1
 	width := 5 // Must be odd. High numbers will limit detectable low frequencies
 	peakIndexes := make([]int, 0)
 
-	// Experimentally determined, meaning unclear
-	// (also unclear how it scales with overall volume and number of samples)
-	threshold := 0.5
 	//	fmt.Printf("threshold is %9.7f\n", threshold)
 ATTEMPT:
 	for i := 0; i < n-width; i++ {
