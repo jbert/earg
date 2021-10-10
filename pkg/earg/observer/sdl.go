@@ -21,6 +21,7 @@ type SDL struct {
 
 	currentX int32
 
+	paused    bool
 	stoppedCh chan struct{}
 }
 
@@ -49,6 +50,7 @@ func NewSDL(highFreq int, sampleRate int, widthDur time.Duration, width int, hei
 		width:      int32(width),
 		height:     int32(height),
 
+		paused:    false,
 		stoppedCh: make(chan struct{}),
 	}
 
@@ -79,20 +81,20 @@ func (s *SDL) listenForEvents() {
 	// Drain any keyboard events
 	for !s.stopped() {
 		event := sdl.WaitEvent()
-		//		log.Printf("Got event: %v", event)
 		switch ev := event.(type) {
 		case *sdl.QuitEvent:
-			//			log.Printf("Got quit event: %v", event)
 			s.stop()
 		case *sdl.KeyboardEvent:
-			//			log.Printf("Got keyboard event: %v", event)
-			switch ev.Keysym.Sym {
-			case sdl.K_q:
-				//				log.Printf("Got q keyboard event: %v", event)
-				s.stop()
-			case sdl.K_ESCAPE:
-				//				log.Printf("Got escape keyboard event: %v", event)
-				s.stop()
+			if ev.Type == sdl.KEYDOWN {
+				switch ev.Keysym.Sym {
+				case sdl.K_p:
+					// Data race. Don't think I care?
+					s.paused = !s.paused
+				case sdl.K_q:
+					s.stop()
+				case sdl.K_ESCAPE:
+					s.stop()
+				}
 			}
 		}
 	}
@@ -141,6 +143,9 @@ func (s *SDL) Hear(a Analysis) error {
 
 	if s.stopped() {
 		return io.EOF
+	}
+	if s.paused {
+		return nil
 	}
 	/*
 		s.renderer.SetDrawColor(0, 0, 0, 255)
