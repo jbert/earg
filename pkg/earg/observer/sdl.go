@@ -58,14 +58,17 @@ func NewSDL(highFreq int, sampleRate int, widthDur time.Duration, width int, hei
 	s.window, err = sdl.CreateWindow(winTitle, sdl.WINDOWPOS_UNDEFINED,
 		sdl.WINDOWPOS_UNDEFINED, s.width, s.height, sdl.WINDOW_SHOWN)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create sdl window: %w\n", err)
+		return nil, fmt.Errorf("Failed to create sdl window: %w", err)
 	}
 
 	s.renderer, err = sdl.CreateRenderer(s.window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create sdl renderer: %w\n", err)
+		return nil, fmt.Errorf("Failed to create sdl renderer: %w", err)
 	}
-	s.renderer.Clear()
+	err = s.renderer.Clear()
+	if err != nil {
+		return nil, fmt.Errorf("Can't clear renderer: %w", err)
+	}
 
 	go s.listenForEvents()
 
@@ -134,6 +137,7 @@ func powerToColour(p float64) (uint8, uint8, uint8) {
 }
 
 func (s *SDL) Hear(a Analysis) error {
+	var err error
 
 	if s.stopped() {
 		return io.EOF
@@ -154,10 +158,16 @@ func (s *SDL) Hear(a Analysis) error {
 	for _, fp := range a.FreqPower {
 
 		r, g, b := powerToColour(fp.Power)
-		s.renderer.SetDrawColor(r, g, b, 255)
+		err = s.renderer.SetDrawColor(r, g, b, 255)
+		if err != nil {
+			return fmt.Errorf("Can't setdrawcolor: %w", err)
+		}
 		y := s.height - int32(float64(s.height)*fp.Freq/float64(s.highFreq))
-		rect := sdl.Rect{s.currentX, y, 5, 5}
-		s.renderer.FillRect(&rect)
+		rect := sdl.Rect{X: s.currentX, Y: y, W: 5, H: 5}
+		err = s.renderer.FillRect(&rect)
+		if err != nil {
+			return fmt.Errorf("Can't fillrect: %w", err)
+		}
 	}
 
 	/*

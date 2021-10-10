@@ -120,7 +120,6 @@ func (e *Ear) process(o Observer) error {
 		}
 	}
 
-	//	printFFT(f, e.coeffs)
 	// Experimentally determined, meaning unclear
 	// (also unclear how it scales with overall volume and number of samples)
 	threshold := 2 / float64(e.wantedFullBufSize)
@@ -131,7 +130,10 @@ func (e *Ear) process(o Observer) error {
 	}
 	//	fmt.Printf("Max freqs: %v\n", maxxes)
 
-	o.Hear(a)
+	err := o.Hear(a)
+	if err != nil {
+		return fmt.Errorf("observer failed: %w", err)
+	}
 
 	return nil
 }
@@ -167,14 +169,4 @@ ATTEMPT:
 		//		fmt.Printf("max is %9.7f\n", possMax)
 	}
 	return peakIndexes
-}
-
-func printFFT(f *fourier.FFT, coeffs []complex128) {
-	n := f.Len()/2 + 1
-	for i := 0; i < n; i++ {
-		//		fftFreq := f.Freq(i)
-		freq := 16000.0 / 4096.0 * float64(i)
-		//		fmt.Printf("%d: %7.4f: %7.4f %7.4f\n", i, freq, cmplx.Abs(coeffs[i]), coeffs[i])
-		fmt.Printf("%d: %7.4f: %7.4f\n", i, freq, cmplx.Abs(coeffs[i]))
-	}
 }
