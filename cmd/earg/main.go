@@ -56,10 +56,10 @@ func main() {
 	//	o := observer.NewPrint(os.Stdout)
 	o, err := observer.NewSDL(highFreq, s.SampleRate(), 10*time.Second, 1024, 768)
 	if err != nil && err != io.EOF {
-		log.Fatalf("Failed to create sdl observer: %w", err)
+		log.Fatalf("Failed to create sdl observer: %s", err)
 	}
 	err = ear.Run(o)
 	if err != nil && err != io.EOF {
-		log.Fatalf("Failed to run: %w", err)
+		log.Fatalf("Failed to run: %s", err)
 	}
 }
