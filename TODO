@@ -1,12 +1,13 @@
+- scale rectangles on screen by knowledge of frequency buckets and timestep duration
+    - add axes!
+        - add option for log scale of frequency, to get semitones equally spaced?
+
 DONE - p to pause?
 
 - add a ctor which turns "a", 4 (or a4) into 440, etc
 
-- screenshot button?
-
-- scale rectangles on screen by knowledge of frequency buckets and timestep duration
-    - add axes!
-        - add option for log scale of frequency, to get semitones equally spaced?
+NO - screenshot button?
+    - use pause :-)
 
 - show nearest semitone and delta
     - requires tuning information (source may be tuned up/down N cents)

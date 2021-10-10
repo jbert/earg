@@ -84,6 +84,9 @@ func (e *Ear) Run(o Observer) error {
 			//			fmt.Printf("Process %d samples\n", len(e.fullBuf))
 			err = e.process(o)
 			if err != nil {
+				if err == io.EOF {
+					return io.EOF
+				}
 				return fmt.Errorf("Can't process: %w", err)
 			}
 		}
@@ -132,6 +135,9 @@ func (e *Ear) process(o Observer) error {
 
 	err := o.Hear(a)
 	if err != nil {
+		if err == io.EOF {
+			return io.EOF
+		}
 		return fmt.Errorf("observer failed: %w", err)
 	}
 
