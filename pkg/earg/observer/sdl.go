@@ -3,7 +3,6 @@ package observer
 import (
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -12,9 +11,7 @@ type SDL struct {
 	window   *sdl.Window
 	renderer *sdl.Renderer
 
-	highFreq   int
-	sampleRate int
-	widthDur   time.Duration
+	highFreq int
 
 	width  int32
 	height int32
@@ -41,14 +38,12 @@ func (s *SDL) stop() {
 	close(s.stoppedCh)
 }
 
-func NewSDL(highFreq int, sampleRate int, widthDur time.Duration, width int, height int) (*SDL, error) {
+func NewSDL(highFreq int, width int, height int) (*SDL, error) {
 	var err error
 	s := &SDL{
-		highFreq:   highFreq,
-		sampleRate: sampleRate,
-		widthDur:   widthDur,
-		width:      int32(width),
-		height:     int32(height),
+		highFreq: highFreq,
+		width:    int32(width),
+		height:   int32(height),
 
 		paused:    false,
 		stoppedCh: make(chan struct{}),

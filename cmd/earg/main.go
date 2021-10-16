@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"time"
 
 	"github.com/jbert/earg/pkg/earg"
 	"github.com/jbert/earg/pkg/earg/observer"
@@ -58,7 +57,7 @@ func main() {
 	highFreq := 2048
 	ear := earg.New(s, highFreq)
 	//	o := observer.NewPrint(os.Stdout)
-	o, err := observer.NewSDL(highFreq, s.SampleRate(), 10*time.Second, opts.width, opts.height)
+	o, err := observer.NewSDL(highFreq, opts.width, opts.height)
 	if err != nil && err != io.EOF {
 		log.Fatalf("Failed to create sdl observer: %s", err)
 	}

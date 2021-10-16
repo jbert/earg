@@ -2,6 +2,10 @@
     - add axes!
         - add option for log scale of frequency, to get semitones equally spaced?
 
+- determine BPM and time signature!
+
+- add 'autogain' to get set current gain so that last "duration" was 0-0.9
+
 DONE - p to pause?
 
 - add a ctor which turns "a", 4 (or a4) into 440, etc
