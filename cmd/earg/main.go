@@ -16,12 +16,16 @@ import (
 type options struct {
 	verbose uint
 	gain    float64
+	width   int
+	height  int
 }
 
 func getOptions() (*options, error) {
 	o := options{}
 	flag.UintVar(&o.verbose, "verbose", 0, "Verbosity level")
 	flag.Float64Var(&o.gain, "gain", 1.0, "Gain multiplier - may cause clipping")
+	flag.IntVar(&o.width, "width", 1024, "SDL width - pixels")
+	flag.IntVar(&o.height, "height", 768, "SDL height - pixels")
 	flag.Parse()
 
 	if o.gain == 0 {
@@ -54,7 +58,7 @@ func main() {
 	highFreq := 2048
 	ear := earg.New(s, highFreq)
 	//	o := observer.NewPrint(os.Stdout)
-	o, err := observer.NewSDL(highFreq, s.SampleRate(), 10*time.Second, 1024, 768)
+	o, err := observer.NewSDL(highFreq, s.SampleRate(), 10*time.Second, opts.width, opts.height)
 	if err != nil && err != io.EOF {
 		log.Fatalf("Failed to create sdl observer: %s", err)
 	}
