@@ -15,9 +15,9 @@ type Ear struct {
 	source Source
 	rate   int
 
-	wantedFullBufSize int
-	readBufSize       int
-	fullBuf           []float64
+	sampleWindowSize int
+	readBufSize      int
+	fullBuf          []float64
 
 	coeffs     []complex128
 	normCoeffs []float64
@@ -31,26 +31,22 @@ func New(s Source, highFreq int) *Ear {
 	// covers operatic voice ranges
 
 	readDur := time.Millisecond * 10
-	wantedFullBufSize := highFreq * 2 // nyquist
+	sampleWindowSize := highFreq * 2 // nyquist
 	e := &Ear{
 		source: s,
 		rate:   rate,
 
-		wantedFullBufSize: wantedFullBufSize,
-		readBufSize:       rate * int(readDur) / int(time.Second),
+		sampleWindowSize: sampleWindowSize,
+		readBufSize:      rate * int(readDur) / int(time.Second),
 
 		fullBuf:    make([]float64, 0),
-		coeffs:     make([]complex128, wantedFullBufSize/2+1),
-		normCoeffs: make([]float64, wantedFullBufSize/2+1),
+		coeffs:     make([]complex128, sampleWindowSize/2+1),
+		normCoeffs: make([]float64, sampleWindowSize/2+1),
 	}
 
 	if e.readBufSize < 1 {
 		log.Fatalf("Read too small, can't progress (change readDur?")
 	}
-
-	//fmt.Printf("readDur %s rate %d\n", readDur, rate)
-	//fmt.Printf("calc %v\n", rate*int(readDur)/int(time.Second))
-	//fmt.Printf("read size %d full size %d\n", len(e.readBuf), len(e.fullBuf))
 
 	return e
 }
@@ -78,7 +74,7 @@ func (e *Ear) Run(o Observer) error {
 		}
 
 		var haveFullBuf bool
-		e.fullBuf, haveFullBuf = appendToRingBuf(e.fullBuf, readBuf[:numRead], e.wantedFullBufSize)
+		e.fullBuf, haveFullBuf = appendToRingBuf(e.fullBuf, readBuf[:numRead], e.sampleWindowSize)
 
 		if haveFullBuf {
 			//			fmt.Printf("Process %d samples\n", len(e.fullBuf))
@@ -107,11 +103,11 @@ func (e *Ear) process(o Observer) error {
 	*/
 
 	a := observer.Analysis{
-		SampleWidth: e.wantedFullBufSize,
+		SampleWidth: e.sampleWindowSize,
 		SampleStart: e.source.CurrentOffset(),
 	}
 
-	f := fourier.NewFFT(e.wantedFullBufSize)
+	f := fourier.NewFFT(e.sampleWindowSize)
 	f.Coefficients(e.coeffs, e.fullBuf)
 	e.setNormalisedCoeffs()
 
@@ -125,7 +121,7 @@ func (e *Ear) process(o Observer) error {
 
 	// Experimentally determined, meaning unclear
 	// (also unclear how it scales with overall volume and number of samples)
-	threshold := 2 / float64(e.wantedFullBufSize)
+	threshold := 2 / float64(e.sampleWindowSize)
 	peakIndices := findPeaks(f, e.normCoeffs, threshold)
 	a.Peaks = make([]float64, len(peakIndices))
 	for i, j := range peakIndices {
@@ -145,12 +141,12 @@ func (e *Ear) process(o Observer) error {
 }
 
 func (e *Ear) indexToFreq(j int) float64 {
-	return float64(e.rate) / float64(e.wantedFullBufSize) * float64(j)
+	return float64(e.rate) / float64(e.sampleWindowSize) * float64(j)
 }
 
 func (e *Ear) setNormalisedCoeffs() {
 	for i := range e.coeffs {
-		e.normCoeffs[i] = cmplx.Abs(e.coeffs[i]) / float64(e.wantedFullBufSize)
+		e.normCoeffs[i] = cmplx.Abs(e.coeffs[i]) / float64(e.sampleWindowSize)
 	}
 }
 
