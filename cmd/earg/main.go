@@ -54,9 +54,9 @@ func main() {
 
 	s := earg.NewClip(earg.NewScale(as, opts.gain), 1)
 
-	highFreq := 2048
-	ear := earg.New(s, highFreq)
+	ear := earg.New(s)
 	//	o := observer.NewPrint(os.Stdout)
+	highFreq := as.SampleRate() / 2
 	o, err := observer.NewSDL(highFreq, opts.width, opts.height)
 	if err != nil && err != io.EOF {
 		log.Fatalf("Failed to create sdl observer: %s", err)

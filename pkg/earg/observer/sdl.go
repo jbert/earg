@@ -142,6 +142,12 @@ func (s *SDL) Hear(a Analysis) error {
 	if s.paused {
 		return nil
 	}
+
+	rectWidth := int32(1)
+	rectHeight := int32(s.height / int32(len(a.FreqPower)))
+	if rectHeight < 1 {
+		rectHeight = 1
+	}
 	/*
 		s.renderer.SetDrawColor(0, 0, 0, 255)
 		rect := sdl.Rect{s.currentX, 0, 5, s.height}
@@ -163,7 +169,7 @@ func (s *SDL) Hear(a Analysis) error {
 			return fmt.Errorf("Can't setdrawcolor: %w", err)
 		}
 		y := s.height - int32(float64(s.height)*fp.Freq/float64(s.highFreq))
-		rect := sdl.Rect{X: s.currentX, Y: y, W: 5, H: 5}
+		rect := sdl.Rect{X: s.currentX, Y: y, W: rectWidth, H: rectHeight}
 		err = s.renderer.FillRect(&rect)
 		if err != nil {
 			return fmt.Errorf("Can't fillrect: %w", err)

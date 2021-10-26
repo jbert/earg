@@ -1,6 +1,19 @@
-- scale rectangles on screen by knowledge of frequency buckets and timestep duration
-    - add axes!
-        - add option for log scale of frequency, to get semitones equally spaced?
+DONE - scale rectangles on screen by knowledge of frequency buckets and timestep duration
+    DONE - wrong Y coord (some -ve)
+    - add the calc as a test?
+        - y function pure method?
+
+- add axes!
+    - add option for log scale of frequency, to get semitones equally spaced?
+
+- add options to only display freqency ranges
+
+- add option for log display of frequencies? (should equi-space notes?)
+
+- label the axes!
+
+- add some kind of hamming window
+    - and/or work out if we want multiple windows
 
 - determine BPM and time signature!
 

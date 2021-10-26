@@ -23,7 +23,7 @@ type Ear struct {
 	normCoeffs []float64
 }
 
-func New(s Source, highFreq int) *Ear {
+func New(s Source) *Ear {
 	rate := s.SampleRate()
 
 	// TODO: make a parameter?
@@ -31,7 +31,7 @@ func New(s Source, highFreq int) *Ear {
 	// covers operatic voice ranges
 
 	readDur := time.Millisecond * 10
-	sampleWindowSize := highFreq * 2 // nyquist
+	sampleWindowSize := 2048
 	e := &Ear{
 		source: s,
 		rate:   rate,
@@ -141,6 +141,7 @@ func (e *Ear) process(o Observer) error {
 }
 
 func (e *Ear) indexToFreq(j int) float64 {
+	// So this floats up to rate, not to max freq
 	return float64(e.rate) / float64(e.sampleWindowSize) * float64(j)
 }
 
